@@ -12,5 +12,10 @@ namespace Console.Data
         public string Cpf { get; set; }
         public DateTime Data { get; set; }
         public int Livro { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format($"{Cpf} - {Livro}");
+        }
     }
 }

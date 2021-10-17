@@ -12,7 +12,7 @@ namespace Console.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySQL("server=localhost; port=3306; database=biblioteca; user=root; password=panodeprato");
+            optionsBuilder.UseMySQL("server=localhost; port=3306; database=biblioteca; user=root; password=panodeprato; Persist Security Info=False;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
