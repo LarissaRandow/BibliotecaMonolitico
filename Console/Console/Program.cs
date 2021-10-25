@@ -60,8 +60,7 @@ namespace Console
                         await CalcularMulta();
                         return true;
                     case "6":
-                        //await Login();
-                        bibliotecario = true;
+                        await Login();
                         return true;
                     default:
                         return true;
@@ -72,10 +71,10 @@ namespace Console
                 WriteLine("\r\nChoose an option:");
                 WriteLine("1) Cadastrar Gênero");
                 WriteLine("2) Pesquisar Gêneros");
-                WriteLine("3) Atualizar Gênero");
+                WriteLine("3) Atualizar Gênero");  //
                 WriteLine("\r");
                 WriteLine("4) Cadastrar Livros");
-                WriteLine("5) Atualizar Livro");
+                WriteLine("5) Atualizar Livro"); //
                 WriteLine("6) Deletar Livro");
                 WriteLine("\r");
                 WriteLine("7) Exibir Todos Os Livros");
@@ -83,7 +82,7 @@ namespace Console
                 WriteLine("9) Pesquisar Por Nome");
                 WriteLine("\r");
                 WriteLine("10) Pesquisar Reservas");
-                WriteLine("11) Atualizar Reserva");
+                WriteLine("11) Atualizar Reserva"); //
                 WriteLine("12) Deletar Reserva");
                 WriteLine("\r");
                 WriteLine("13) Calcular Multa");
@@ -99,13 +98,13 @@ namespace Console
                         await TodosGenerosAsync();
                         return true;
                     case "3":
-                        //await AtualizarGeneroAsync();
+                        await AtualizarGeneroAsync();
                         return true;
                     case "4":
                         await CadastraLivroAsync();
                         return true;
                     case "5":
-                        //await AtualizarLivroAsync();
+                        await AtualizarLivroAsync();
                         return true;
                     case "6":
                         await DeletarLivroAsync();
@@ -123,7 +122,7 @@ namespace Console
                         await TodosReservasAsync();
                         return true;
                     case "11":
-                        //await AtualizarReservaAsync();
+                        await AtualizarReservaAsync();
                         return true;
                     case "12":
                         await DeletarReservaAsync();
@@ -357,34 +356,89 @@ namespace Console
 
         }
 
-        //private static async Task AtualizarGeneroAsync()
-        //{
-        //    Write("\r\nId: ");
-        //    int id = Convert.ToInt32(ReadLine());
-        //    Write("\r\nNome: ");
-        //    string nome = ReadLine();
+        private static async Task AtualizarLivroAsync()
+        {
+            Write("\r\nId: ");
+            int id = Convert.ToInt32(ReadLine());
 
-        //    Genero genero = new Genero
-        //    {
-        //        Id = id,
-        //        Nome = nome
-        //    };
+            Write("\r\nNome: ");
+            string nome = ReadLine();
 
-        //    //try
-        //    //{
-        //    //    context.Entry(genero).State = EntityState.Modified;
-        //    //    await context.SaveChangesAsync();
-        //    //}
-        //    //catch(Exception ex)
-        //    //{
-        //    //    WriteLine(ex);
-        //    //}
+            Write("\r\nReservado: ");
+            bool reservado = Convert.ToBoolean(ReadLine());
 
-        //    var generos = await context.Genero.FindAsync(id);
-        //    if(generos != null)
-        //    {
-        //       context.Genero.Update(genero);
-        //    }
-        //}
+            Write("\r\nGenero Id: ");
+            int generoId = Convert.ToInt32(ReadLine());
+
+            Livro livro = new Livro
+            {
+                Id = id,
+                Nome = nome,
+                Reservado = reservado,
+                Genero = generoId
+            };
+
+            context.Entry(livro).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+            context.Entry(livro).State = EntityState.Detached;
+        }
+
+        private static async Task AtualizarGeneroAsync()
+        {
+            Write("\r\nId: ");
+            int id = Convert.ToInt32(ReadLine());
+            Write("\r\nNome: ");
+            string nome = ReadLine();
+
+            Genero genero = new Genero
+            {
+                Id = id,
+                Nome = nome
+            };
+
+            context.Entry(genero).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+            context.Entry(genero).State = EntityState.Detached;
+        }
+
+        private static async Task AtualizarReservaAsync()
+        {
+            Write("\r\nId: ");
+            int id = Convert.ToInt32(ReadLine());
+            Write("\r\nCpf: ");
+            string cpf = ReadLine();
+            Write("\r\nData: ");
+            DateTime data = Convert.ToDateTime(ReadLine());
+            Write("\r\nId Livro: ");
+            int livroId = Convert.ToInt32(ReadLine());
+
+            Reserva reserva = new Reserva
+            {
+                Id = id,
+                Cpf = cpf,
+                Data = data.AddDays(14),
+                Livro = livroId
+            };
+
+            context.Entry(reserva).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+            context.Entry(reserva).State = EntityState.Detached;
+        }
+
+        private static async Task Login()
+        {
+            Write("\r\nEmail: ");
+            string email = ReadLine();
+            Write("\r\nSenha: ");
+            string senha = ReadLine();
+
+            var logins = await context.Bibliotecarios.ToListAsync();
+
+            foreach (var login in logins)
+            {
+                if (login.Login == email && login.Senha == senha)
+                    bibliotecario = true;
+            }
+        }
     }
 }
