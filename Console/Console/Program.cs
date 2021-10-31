@@ -5,28 +5,36 @@ using static System.Console;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 
 namespace Console
 {
-    class Program
+    public class Program
     {
         private static bool bibliotecario = false;
         private static AppDbContext context = new AppDbContext();
 
         static void Main(string[] args)
         {
-            bool showMenu = true;
-            Task<bool> task;
-            while (showMenu)
-            {
-                task = MainMenuAsync();
-                task.Wait();
-                showMenu = task.Result;
-            }
+
+            var summary = BenchmarkRunner.Run<Funcoes>();
+            Read();
+
+            //bool showMenu = true;
+            //Task<bool> task;
+            //while (showMenu)
+            //{
+            //    task = MainMenuAsync();
+            //    task.Wait();
+            //    showMenu = task.Result;
+                
+            //}
 
         }
 
-        private static async Task<bool> MainMenuAsync()
+        public static async Task<bool> MainMenuAsync()
         {
             //Console.Clear();
             if (!bibliotecario)
@@ -45,8 +53,8 @@ namespace Console
                 switch (ReadLine())
                 {
                     case "1":
-                        await TodosLivrosAsync();
-                        return true;
+                        //await TodosLivrosAsync();
+                        return false;
                     case "2":
                         await PesquisarLivroGenero();
                         return true;
@@ -71,10 +79,10 @@ namespace Console
                 WriteLine("\r\nChoose an option:");
                 WriteLine("1) Cadastrar Gênero");
                 WriteLine("2) Pesquisar Gêneros");
-                WriteLine("3) Atualizar Gênero");  //
+                WriteLine("3) Atualizar Gênero");
                 WriteLine("\r");
                 WriteLine("4) Cadastrar Livros");
-                WriteLine("5) Atualizar Livro"); //
+                WriteLine("5) Atualizar Livro");
                 WriteLine("6) Deletar Livro");
                 WriteLine("\r");
                 WriteLine("7) Exibir Todos Os Livros");
@@ -82,7 +90,7 @@ namespace Console
                 WriteLine("9) Pesquisar Por Nome");
                 WriteLine("\r");
                 WriteLine("10) Pesquisar Reservas");
-                WriteLine("11) Atualizar Reserva"); //
+                WriteLine("11) Atualizar Reserva");
                 WriteLine("12) Deletar Reserva");
                 WriteLine("\r");
                 WriteLine("13) Calcular Multa");
@@ -110,7 +118,7 @@ namespace Console
                         await DeletarLivroAsync();
                         return true;
                     case "7":
-                        await TodosLivrosAsync();
+                        //await TodosLivrosAsync();
                         return true;
                     case "8":
                         await PesquisarLivroGenero();
@@ -136,10 +144,33 @@ namespace Console
             }
 
         }
-        
-        private static async Task TodosLivrosAsync()
+
+        public class Funcoes
         {
-            
+            [Benchmark]
+            public async Task TodosLivrosAsync()
+            {
+
+                var livroTask = context.Livros.ToListAsync();
+
+                WriteLine("\r");
+                WriteLine("--------Lista----------");
+                await livroTask.ContinueWith(task =>
+                {
+                    var livros = task.Result;
+                    foreach (var p in livros)
+                        WriteLine(p.ToString());
+                },
+                TaskContinuationOptions.OnlyOnRanToCompletion
+                );
+                WriteLine("-----------------------");
+
+            }
+        }
+
+        public async Task TodosLivrosAsync()
+        {
+
             var livroTask = context.Livros.ToListAsync();
 
             WriteLine("\r");
