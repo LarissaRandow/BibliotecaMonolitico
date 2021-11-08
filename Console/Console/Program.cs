@@ -19,12 +19,36 @@ namespace Console
         static void Main(string[] args)
         {
             BenchmarkRunner.Run<Perfomance>();
+
+            //bool showMenu = true;
+            //Task<bool> task;
+            //while (showMenu)
+            //{
+            //    task = MainMenuAsync();
+            //    task.Wait();
+            //    showMenu = task.Result;
+
+            //}
         }
 
         [MemoryDiagnoser]
         [RPlotExporter]
         public class Perfomance
         {
+            [Benchmark]
+            public async Task CadastraGeneroAsync()
+            {
+
+                Genero genero = new Genero
+                {
+                    Id = 0,
+                    Nome = "genero"
+                };
+
+                context.Genero.Add(genero);
+                await context.SaveChangesAsync();
+            }
+
             [Benchmark]
             public async Task TodosLivrosAsync()
             {
@@ -42,198 +66,161 @@ namespace Console
                 );
                 WriteLine("-----------------------");
             }
+            
+
+            [Benchmark]
+            public async Task AtualizarLivroAsync()
+            {
+
+                Livro livro = new Livro
+                {
+                    Id = 7,
+                    Nome = "mono",
+                    Reservado = false,
+                    Genero = 1
+                };
+
+                context.Entry(livro).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+                context.Entry(livro).State = EntityState.Detached;
+            }
+
+            [Benchmark]
+            public async Task DeletarReservaAsync()
+            {
+                int id = 34;
+
+                var reserva = await context.Reserva.FindAsync(id);
+
+                if (reserva == null)
+                {
+                    WriteLine("Not Found");
+                }
+                else
+                {
+                    var livro = await context.Livros.FindAsync(reserva.Livro);
+                    livro.Reservado = false;
+                    context.Livros.Update(livro);
+
+                    context.Reserva.Remove(reserva);
+                    await context.SaveChangesAsync();
+                }
+
+            }
         }
 
-        //public async Task CadastraGeneroAsync()
-        //{
-
-        //    Genero genero = new Genero
-        //    {
-        //        Id = 0,
-        //        Nome = "genero"
-        //    };
-
-        //    context.Genero.Add(genero);
-        //    await context.SaveChangesAsync();
-        //}
-
-        //[Benchmark]
-        //public async Task TodosLivrosAsync()
-        //{
-        //    var livroTask = context.Livros.ToListAsync();
-
-        //    WriteLine("\r");
-        //    WriteLine("--------Lista----------");
-        //    await livroTask.ContinueWith(task =>
-        //    {
-        //        var livros = task.Result;
-        //        foreach (var p in livros)
-        //            WriteLine(p.ToString());
-        //    },
-        //    TaskContinuationOptions.OnlyOnRanToCompletion
-        //    );
-        //    WriteLine("-----------------------");
-
-        //}
-
-        //[Benchmark]
-        //public async Task AtualizarLivroAsync()
-        //{
-
-        //    Livro livro = new Livro
-        //    {
-        //        Id = 7,
-        //        Nome = "mono",
-        //        Reservado = false,
-        //        Genero = 1
-        //    };
-
-        //    context.Entry(livro).State = EntityState.Modified;
-        //    await context.SaveChangesAsync();
-        //    context.Entry(livro).State = EntityState.Detached;
-        //}
-
-        //[Benchmark]
-        //public async Task DeletarReservaAsync()
-        //{
-        //    int id = 34;
-
-        //    var reserva = await context.Reserva.FindAsync(id);
-
-        //    if (reserva == null)
-        //    {
-        //        WriteLine("Not Found");
-        //    }
-        //    else
-        //    {
-        //        var livro = await context.Livros.FindAsync(reserva.Livro);
-        //        livro.Reservado = false;
-        //        context.Livros.Update(livro);
-
-        //        context.Reserva.Remove(reserva);
-        //        await context.SaveChangesAsync();
-        //    }
-
-        //}
-        //bool showMenu = true;
-        //Task<bool> task;
-        //while (showMenu)
-        //{
-        //    task = MainMenuAsync();
-        //    task.Wait();
-        //    showMenu = task.Result;
-
-        //}
-        //public static async Task<bool> MainMenuAsync()
-        //{
-        //    //Console.Clear();
-        //    if (!bibliotecario)
-        //    {
-        //        WriteLine("\r\nChoose an option:");
-        //        WriteLine("1) Exibir Todos Os Livros");
-        //        WriteLine("2) Pesquisar Por Gênero");
-        //        WriteLine("3) Pesquisar Por Nome");
-        //        WriteLine("4) Reservar Um Livro");
-        //        WriteLine("5) Calcular Multa");
-        //        WriteLine("6) Realizar Login");
 
 
-        //        Write("\r\nSelect an option: ");
+        public static async Task<bool> MainMenuAsync()
+        {
+            //Console.Clear();
+            if (!bibliotecario)
+            {
+                WriteLine("\r\nChoose an option:");
+                WriteLine("1) Exibir Todos Os Livros");
+                WriteLine("2) Pesquisar Por Gênero");
+                WriteLine("3) Pesquisar Por Nome");
+                WriteLine("4) Reservar Um Livro");
+                WriteLine("5) Calcular Multa");
+                WriteLine("6) Realizar Login");
 
-        //        switch (ReadLine())
-        //        {
-        //            case "1":
-        //                //await TodosLivrosAsync();
-        //                return false;
-        //            case "2":
-        //                await PesquisarLivroGenero();
-        //                return true;
-        //            case "3":
-        //                await PesquisarLivroNome();
-        //                return true;
-        //            case "4":
-        //               await CadastraReservaAsync();
-        //                return true;
-        //            case "5":
-        //                await CalcularMulta();
-        //                return true;
-        //            case "6":
-        //                await Login();
-        //                return true;
-        //            default:
-        //                return true;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        WriteLine("\r\nChoose an option:");
-        //        WriteLine("1) Cadastrar Gênero");
-        //        WriteLine("2) Pesquisar Gêneros");
-        //        WriteLine("3) Atualizar Gênero");
-        //        WriteLine("\r");
-        //        WriteLine("4) Cadastrar Livros");
-        //        WriteLine("5) Atualizar Livro");
-        //        WriteLine("6) Deletar Livro");
-        //        WriteLine("\r");
-        //        WriteLine("7) Exibir Todos Os Livros");
-        //        WriteLine("8) Pesquisar Por Gênero");
-        //        WriteLine("9) Pesquisar Por Nome");
-        //        WriteLine("\r");
-        //        WriteLine("10) Pesquisar Reservas");
-        //        WriteLine("11) Atualizar Reserva");
-        //        WriteLine("12) Deletar Reserva");
-        //        WriteLine("\r");
-        //        WriteLine("13) Calcular Multa");
 
-        //        Write("\r\nSelect an option: ");
+                Write("\r\nSelect an option: ");
 
-        //        switch (ReadLine())
-        //        {
-        //            case "1":
-        //                await CadastraGeneroAsync();
-        //                return true;
-        //            case "2":
-        //                await TodosGenerosAsync();
-        //                return true;
-        //            case "3":
-        //                await AtualizarGeneroAsync();
-        //                return true;
-        //            case "4":
-        //                await CadastraLivroAsync();
-        //                return true;
-        //            case "5":
-        //                await AtualizarLivroAsync();
-        //                return true;
-        //            case "6":
-        //                await DeletarLivroAsync();
-        //                return true;
-        //            case "7":
-        //                //await TodosLivrosAsync();
-        //                return true;
-        //            case "8":
-        //                await PesquisarLivroGenero();
-        //                return true;
-        //            case "9":
-        //                await PesquisarLivroNome();
-        //                return true;
-        //            case "10":
-        //                await TodosReservasAsync();
-        //                return true;
-        //            case "11":
-        //                await AtualizarReservaAsync();
-        //                return true;
-        //            case "12":
-        //                await DeletarReservaAsync();
-        //                return true;
-        //            case "13":
-        //                await CalcularMulta();
-        //                return true;
-        //            default:
-        //                return true;
-        //        }
-        //    }
+                switch (ReadLine())
+                {
+                    case "1":
+                        //await TodosLivrosAsync();
+                        return false;
+                    case "2":
+                        await PesquisarLivroGenero();
+                        return true;
+                    case "3":
+                        await PesquisarLivroNome();
+                        return true;
+                    case "4":
+                        await CadastraReservaAsync();
+                        return true;
+                    case "5":
+                        await CalcularMulta();
+                        return true;
+                    case "6":
+                        await Login();
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+            else
+            {
+                WriteLine("\r\nChoose an option:");
+                WriteLine("1) Cadastrar Gênero");
+                WriteLine("2) Pesquisar Gêneros");
+                WriteLine("3) Atualizar Gênero");
+                WriteLine("\r");
+                WriteLine("4) Cadastrar Livros");
+                WriteLine("5) Atualizar Livro");
+                WriteLine("6) Deletar Livro");
+                WriteLine("\r");
+                WriteLine("7) Exibir Todos Os Livros");
+                WriteLine("8) Pesquisar Por Gênero");
+                WriteLine("9) Pesquisar Por Nome");
+                WriteLine("\r");
+                WriteLine("10) Pesquisar Reservas");
+                WriteLine("11) Atualizar Reserva");
+                WriteLine("12) Deletar Reserva");
+                WriteLine("\r");
+                WriteLine("13) Calcular Multa");
 
-        //}
+                Write("\r\nSelect an option: ");
+
+                switch (ReadLine())
+                {
+                    case "1":
+                        await CadastraGeneroAsync();
+                        return true;
+                    case "2":
+                        await TodosGenerosAsync();
+                        return true;
+                    case "3":
+                        await AtualizarGeneroAsync();
+                        return true;
+                    case "4":
+                        await CadastraLivroAsync();
+                        return true;
+                    case "5":
+                        await AtualizarLivroAsync();
+                        return true;
+                    case "6":
+                        await DeletarLivroAsync();
+                        return true;
+                    case "7":
+                        //await TodosLivrosAsync();
+                        return true;
+                    case "8":
+                        await PesquisarLivroGenero();
+                        return true;
+                    case "9":
+                        await PesquisarLivroNome();
+                        return true;
+                    case "10":
+                        await TodosReservasAsync();
+                        return true;
+                    case "11":
+                        await AtualizarReservaAsync();
+                        return true;
+                    case "12":
+                        await DeletarReservaAsync();
+                        return true;
+                    case "13":
+                        await CalcularMulta();
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+
+        }
 
         private static async Task Login()
         {
